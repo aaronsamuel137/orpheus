@@ -1,0 +1,11 @@
+<html>
+	<head>
+		<title>Data View</title>
+	</head>
+	<body>
+		{% for c in content %}
+			{{ c.render_input() | safe }}
+			<br>
+		{% endfor %}
+	</body>
+</html>

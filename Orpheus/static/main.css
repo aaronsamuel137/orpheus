@@ -1,0 +1,33 @@
+body {
+	font-family: verdana;
+	background-color: #5e5e5e;
+	text-align: center;
+}
+
+h1 {
+	color: white;
+}
+
+form {
+	background-color: #ccc;
+	margin: auto;
+	position: relative;
+	width: 50%;
+	padding: 10px;
+	border: 1px solid #000;
+	border: inset 1px solid #333;
+}
+
+.box {
+	border: 1px solid #000;
+    text-align: left;
+    width: 50%;
+    margin: 0 auto;
+    padding: 2em;
+    background-color: #3f3f3f;
+    color: white;
+}
+
+.input_view {
+
+}

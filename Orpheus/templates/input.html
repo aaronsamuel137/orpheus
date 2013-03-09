@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>Orpheus Music</title>
+		<link type="text/css" rel="stylesheet" href="/static/main.css" />
+	</head>
+
+	<body>
+		<h1>Welcome to Orpheus</h1>
+		<div class="box">
+			
+			<p>Orpheus is a new web application that allows anyone to influence 
+			   the music at businesses or other public places. Thanks for helping us test the product!</p>
+			<br>
+			<p>How would you like the music to be? Louder? Softer? More chill? More lively? Particular genres, song or artists? 
+				Enter your preferences in the box and Orpheus will adapt the music that is playing in real time.</p>
+
+		</div>
+
+		<br><br>
+
+		<div class="box">
+			<p> {{message}} </p>
+		</div>
+
+		<br><br>
+
+		<form method="post">
+			<label for="input">
+				<input type="text" name="user_input" id="input" style="width: 50%; padding: 2px; border: 1px solid #000"><br>
+			</label>
+			<input type="submit" value="Submit">
+		</form>
+
+	</body>
+</html>
