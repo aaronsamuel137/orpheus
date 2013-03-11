@@ -47,7 +47,7 @@ def render_str(template, **params):
 # still getting UTC time
 class MST(datetime.tzinfo):
     def utcoffset(self, dt):
-    	return datetime.timedelta(hours=-7)
+    	return datetime.timedelta(hours=-6)
 
     def dst(self, dt):
         return datetime.timedelta(0)
@@ -81,7 +81,7 @@ class MainHandler(webapp2.RequestHandler):
 # class for the user input form
 class FormHandler(MainHandler):
     def get(self):
-        self.render("input.html", message = "Enjoy the music")
+        self.render("input.html")
 
     def post(self):
     	user_input = self.request.get("user_input")
