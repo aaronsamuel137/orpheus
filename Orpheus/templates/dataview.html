@@ -3,6 +3,13 @@
 		<title>Data View</title>
 	</head>
 	<body>
+        Change the song on the app<br>
+        <form method="post" action="/dataview">
+            <input type="text" name="song">
+            <input type="submit" value="add">
+        </form>
+        <br><br>
+
 		{% for c in content %}
 			{{ c.render_input() | safe }}
 			<br>

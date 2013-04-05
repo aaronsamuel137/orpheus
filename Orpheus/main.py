@@ -31,7 +31,9 @@ jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
 
 # use this to change our event in case we want to test
 # at different events and sort our data
-EVENT = "test"
+EVENT = "tylers party 3-15"
+
+# hex code for purple #672199 old = #5e5e5e
 
 def escape_html(s):
 	s = s.replace("&", "&amp;")
@@ -70,6 +72,10 @@ class Input(db.Model):
 		t = transform_time(self.created, co_time)
 		return render_str("input_view.html", time = t, content = self.user_input)
 
+class Tracking(db.Model):
+	hits = db.IntegerProperty()
+	name = db.StringProperty()
+
 
 # A parent class for all handlers with some useful methods
 # just call self.render( <template name>, <arguments> ) to
@@ -81,20 +87,57 @@ class MainHandler(webapp2.RequestHandler):
 # class for the user input form
 class FormHandler(MainHandler):
     def get(self):
-        self.render("input.html")
+        self.render("buttons.html")
+
+        cursor = db.GqlQuery("SELECT * FROM Tracking WHERE key_name = 'hits_at_tylers'")
+        if not cursor.get():
+        	a = Tracking(key_name='hits_at_tylers', hits=1)
+        	a.put()
+
+        else:
+        	myKey = db.Key.from_path('Tracking', 'hits_at_tylers')
+        	rec = db.get(myKey)
+        	if rec:
+        		rec.hits += 1
+        		rec.put()
 
     def post(self):
     	user_input = self.request.get("user_input")
-    	if user_input != "":
+        button = self.request.get("button_pressed")
+        track = self.request.get("song")
+
+        if track:
+            self.render("buttons.html", track = track)
+
+        if button:
+            a = Input(user_input = button, event = EVENT)
+            a.put()
+            if button == "more chill":
+                message = "Chill music coming up!"
+            if button == "more bangin":
+                message = "Bangin music coming up!"
+            if button == "louder":
+                message = "We\'ll turn it up"
+            if button == "softer":
+                message = "Softer music on the way"
+            if button == "skip":
+                message = ""
+
+    	elif user_input != "":
     		a = Input(user_input = user_input, event = EVENT)
     		a.put()
-    		message = "Thanks for your submission, we hope you enjoy the music!"
-    		self.render("input.html", message = message)
+    		message = "Got it! We'll get that playing next"
+
+        else:
+            message = ""
+
+        self.render("buttons.html", message = message)
 
 # class for us to view the data
 class DataViewHandler(MainHandler):
 	def get(self):
-		content = db.GqlQuery("SELECT * FROM Input WHERE event ='" + EVENT + "' ORDER BY created DESC LIMIT 10")
+		# use LIMIT keyword to limit number of entries displayed
+		content = db.GqlQuery("SELECT * FROM Input WHERE event ='" + EVENT + "' ORDER BY created DESC")
 		self.render("dataview.html", content = content)
 
 
