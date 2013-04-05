@@ -23,6 +23,7 @@ import time
 import logging
 
 from google.appengine.ext import db
+from google.appengine.api import memcache
 
 # set up a directory for jinja html templates
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
@@ -32,6 +33,7 @@ jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
 # use this to change our event in case we want to test
 # at different events and sort our data
 EVENT = "tylers party 3-15"
+TRACK_KEY = "track"
 
 # hex code for purple #672199 old = #5e5e5e
 
@@ -43,6 +45,9 @@ def escape_html(s):
 def render_str(template, **params):
 	t = jinja_env.get_template(template)
 	return t.render(params)
+
+def cache(track_name):
+    memcache.set(TRACK_KEY, track_name)
 
 # timezone class for MST
 # for some reason it isn't working and we are
@@ -87,7 +92,12 @@ class MainHandler(webapp2.RequestHandler):
 # class for the user input form
 class FormHandler(MainHandler):
     def get(self):
-        self.render("buttons.html")
+        track = memcache.get(TRACK_KEY)
+        if track and track != "":
+            now_playing = "Now Playing: %s" % track
+            self.render("buttons.html", now_playing = now_playing)
+        else:
+            self.render("buttons.html")
 
         cursor = db.GqlQuery("SELECT * FROM Tracking WHERE key_name = 'hits_at_tylers'")
         if not cursor.get():
@@ -104,10 +114,13 @@ class FormHandler(MainHandler):
     def post(self):
     	user_input = self.request.get("user_input")
         button = self.request.get("button_pressed")
-        track = self.request.get("song")
+        track = memcache.get(TRACK_KEY)
 
-        if track:
-            self.render("buttons.html", track = track)
+        if track and track != "":
+            now_playing = "Now Playing: %s" % track
+        else:
+            now_playing = None
+            #"<span class=\"track\">Now Playing: %s</span><br>" % track
 
         if button:
             a = Input(user_input = button, event = EVENT)
@@ -121,24 +134,36 @@ class FormHandler(MainHandler):
             if button == "softer":
                 message = "Softer music on the way"
             if button == "skip":
-                message = ""
+                message = "Skipping track..."
 
-    	elif user_input != "":
-    		a = Input(user_input = user_input, event = EVENT)
-    		a.put()
+        elif user_input != "":
+        	a = Input(user_input = user_input, event = EVENT)
+        	a.put()
     		message = "Got it! We'll get that playing next"
 
         else:
             message = ""
 
-        self.render("buttons.html", message = message)
+        if now_playing:
+            self.render("buttons.html", message = message, now_playing = now_playing)
+        else:
+            self.render("buttons.html", message = message)
 
 # class for us to view the data
 class DataViewHandler(MainHandler):
-	def get(self):
-		# use LIMIT keyword to limit number of entries displayed
-		content = db.GqlQuery("SELECT * FROM Input WHERE event ='" + EVENT + "' ORDER BY created DESC")
-		self.render("dataview.html", content = content)
+    def get(self):
+        content = db.GqlQuery("SELECT * FROM Input WHERE event ='" + EVENT + "' ORDER BY created DESC")    
+        track = self.request.get("song")
+        if track == "":
+            memcache.set(TRACK_KEY, "")
+        elif track:
+            memcache.set(TRACK_KEY, track)
+
+        now_playing = memcache.get(TRACK_KEY)
+        if now_playing:
+            self.render("dataview.html", content = content, track = now_playing)
+        else:
+            self.render("dataview.html", content = content)
 
 
 # add new pages here
@@ -146,3 +171,4 @@ app = webapp2.WSGIApplication([
     ('/', FormHandler),
     ('/dataview', DataViewHandler)
 ], debug=True)
+
