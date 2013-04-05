@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>Orpheus Music</title>
+		<link type="text/css" rel="stylesheet" href="/static/main.css" />
+		<script type="text/javascript">
+			function chill() {
+    			document.getElementById("value").value="more chill";
+    			document.button_value.submit();
+			}
+			function bangin() {
+    			document.getElementById("value").value="more bangin";
+    			document.button_value.submit();
+			}
+			function louder() {
+    			document.getElementById("value").value="louder";
+    			document.button_value.submit();
+			}
+			function softer() {
+    			document.getElementById("value").value="softer";
+    			document.button_value.submit();
+			}
+			function skip() {
+    			document.getElementById("value").value="skip";
+    			document.button_value.submit();
+			}
+		</script>
+	</head>
+
+	<body>
+		<img src="http://i.imgur.com/uceAG8d.png" width="80%"><br>
+
+		<div class="track" id="playing">{{now_playing}}</div><br>
+
+        <button class="button" type="button" name="skip" onclick="skip()">Skip</button><br><br>
+		<button class="button" type="button" name="chill" onclick="chill()">More Chill</button><br><br>
+		<button class="button" type="button" name="bangin" onclick="bangin()">More Bangin</button><br><br>
+		<button class="button" type="button" name="louder" onclick="louder()">Louder</button><br><br>
+		<button class="button" type="button" name="softer" onclick="softer()">Softer</button><br><br>
+
+		
+		<form method="post" name="button_value" id="button_value">
+			<input id="value" type="hidden" value="" name="button_pressed">
+			Other suggestions?<br>
+			<input type="text" name="user_input" style="width: 90%; height: 80px; font-size: 70px; padding: 2px; border: 1px solid #000; border-radius: 15px"><br>
+			<input type="submit" value="Submit">
+		</form>
+
+		<p> {{message}} </p>
+
+	</body>
+</html>
