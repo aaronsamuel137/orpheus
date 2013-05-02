@@ -6,8 +6,9 @@
 {% block content %}
     <h1>Vote for your favorite song!</h1>
     <form class="mobile_form" action="/vote" method="post">
+        <strong>Song<span class="right_align">Votes</span></strong><br>
         {% for song, votes in songs %}
-            <input type="radio" name="vote" value="{{song}}" />{{song}} - {{votes}}<br>
+            <input type="radio" name="vote" value="{{song}}" />{{song}}<span class="right_align">{{votes}}</span><br><br>
         {% endfor %}
         <br><br>
         <div class="buttonHolder">

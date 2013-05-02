@@ -3,10 +3,24 @@ body {
 	background-color: #672199;
 }
 
-h1 {
+h1, h2, h3 {
 	color: white;
     text-align: center;
 }
+
+h1 {
+    font-size: 60px;
+}
+
+h2 {
+    font-size: 40px;
+}
+
+h2 {
+    font-size: 30px;
+}
+
+
 
 #left, #right {
     border: 1px solid #000;
@@ -23,6 +37,10 @@ h1 {
 }
 
 #right {
+    float: right;
+}
+
+.right_align {
     float: right;
 }
 
