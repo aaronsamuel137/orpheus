@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Orpheus - Dataview{% endblock %}
+{% block head %}
+    {{ super() }}
+    <script type="text/javascript">
+        function next_vote() {
+            document.getElementById("gn").value="more chill";
+            document.button_value.submit();
+        }
+    </script>
+{% endblock %}
+{% block content %}
+    <h1>Orpheus Dataview</h1>
+    <div class="links">
+        <a href="/vote">vote page</a>
+    </div>
+    <br>
+    <div id="left">
+        <form action="/queue" method="post">
+            Queue:<br>
+            {% for song in songs %}
+                <input type="radio" name="remove" value="{{song}}" />{{song}}<br />
+            {% endfor %}
+            <input type="submit" value="Remove"><br><br>
+            Add to Queue:<br>
+            Name: <input type="text" name="name" /><br>
+            Artist: <input type="text" name="artist" /><br>
+            Genre: <input type="text" name="genre" /><br>
+            Position: <input type="text" name="position" /><br>
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+    <br>
+    <div id="right">
+        <h3>Current Vote:</h3>
+        <form action="/vote", method="post">
+            {% for song, votes in vote_songs %}
+                <input type="radio" name="vote" value="{{song}}" />{{song}} - {{votes}}<br>
+            {% endfor %}
+            <input type="hidden" value="a string" name="from_queue" />
+            <input type="submit" value="Vote!" />
+        </form>
+        <br><br><br>
+        <p>Use this button to start the next vote with the three top songs from the queue</p>
+        <form action="/next" method="post">
+            <input type="submit" value="Generate Next Vote">
+        </form>
+    </div>
+
+{% endblock %}
+
+

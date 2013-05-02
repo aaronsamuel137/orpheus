@@ -22,8 +22,11 @@ import datetime
 import time
 import logging
 
+from operator import itemgetter
+
 from google.appengine.ext import db
 from google.appengine.api import memcache
+from google.appengine.api import channel
 
 # set up a directory for jinja html templates
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
@@ -32,8 +35,13 @@ jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
 
 # use this to change our event in case we want to test
 # at different events and sort our data
-EVENT = "tylers party 3-15"
+EVENT = "MVP party 4-7"
 TRACK_KEY = "track"
+QUEUE = "queue"
+VOTE = "vote"
+
+vote_songs = {}
+queue = []
 
 # hex code for purple #672199 old = #5e5e5e
 
@@ -46,6 +54,7 @@ def render_str(template, **params):
 	t = jinja_env.get_template(template)
 	return t.render(params)
 
+# cache the current song
 def cache(track_name):
     memcache.set(TRACK_KEY, track_name)
 
@@ -77,9 +86,20 @@ class Input(db.Model):
 		t = transform_time(self.created, co_time)
 		return render_str("input_view.html", time = t, content = self.user_input)
 
+# used to track number of hits our page gets
 class Tracking(db.Model):
 	hits = db.IntegerProperty()
 	name = db.StringProperty()
+
+"""
+class Song(db.Model):
+    name = db.StringProperty()
+    artist = db.StringProperty()
+    genre = db.StringProperty()
+    played = db.TextProperty() # comma separated timestamps
+    plays = db.IntegerProperty()
+    requests = db.TextProperty() # comma separated timestamps
+"""
 
 
 # A parent class for all handlers with some useful methods
@@ -149,6 +169,92 @@ class FormHandler(MainHandler):
         else:
             self.render("buttons.html", message = message)
 
+class VoteHandler(MainHandler):
+    def get(self):
+        songs = memcache.get(VOTE)
+        if not songs:
+            songs = [["Thrift Shop - Macklemore", 0],
+                     ["Thriller - Michael Jackson", 0],
+                     ["Mirrors - Justin Timberlake", 0]]
+            memcache.set(VOTE, songs)
+        self.render('vote.html', songs = songs)
+
+    def post(self):
+        vote = self.request.get('vote')
+        from_queue = self.request.get('from_queue')
+        songs = memcache.get(VOTE)
+        for song in songs:
+            if song[0] == vote:
+                song[1] += 1
+                break
+        memcache.set(VOTE, songs)
+        if from_queue:
+            self.redirect('/queue')
+        else:
+            self.redirect('/thanks')
+
+class ThanksHandler(MainHandler):
+    def get(self):
+        songs = memcache.get(VOTE)
+        self.render('thanks.html', songs = songs)
+
+class QueueHandler(MainHandler):
+    def get(self):
+        queue = memcache.get(QUEUE)
+        vote_songs = memcache.get(VOTE)
+        if not queue:
+            queue = ["Thrift Shop - Macklemore",
+                     "Thriller - Michael Jackson",
+                     "Mirrors - Justin Timberlake"]
+            memcache.set(QUEUE, queue)
+        if not vote_songs:
+            vote_songs = []
+        self.render('queue.html', songs = queue, vote_songs = vote_songs)
+
+    def post(self):
+        queue = memcache.get(QUEUE)
+        vote_songs = memcache.get(VOTE)
+        if not queue:
+            queue = []
+        if not vote_songs:
+            vote_songs = []
+        remove = self.request.get('remove')
+        if remove:
+            queue.remove(remove)
+            memcache.set(QUEUE, queue)
+            self.render('queue.html', songs = queue, vote_songs = vote_songs)
+
+
+
+        name = self.request.get('name')
+        artist = self.request.get('artist')
+        genre = self.request.get('genre')
+        position = self.request.get('position')
+        if position.isdigit():
+            position = int(position) + 1
+        else:
+            position = 0
+
+        if name:
+            #n = Song(name = name, artist = artist, genre = genre)
+            #n.put()
+            if artist:
+                song = [name, artist]
+                queue.insert(position, ' - '.join(song))
+            else:
+                queue.insert(position, name)
+            memcache.set(QUEUE, queue)
+            self.render('queue.html', songs = queue, vote_songs = vote_songs)
+
+class NextHandler(MainHandler):
+    def post(self):
+        songs = memcache.get(QUEUE)
+        songs = songs[:3]
+        vote = [[song, 0] for song in songs]
+        memcache.set(VOTE, vote)
+        self.redirect('/queue')
+
+
 # class for us to view the data
 class DataViewHandler(MainHandler):
     def get(self):
@@ -168,7 +274,10 @@ class DataViewHandler(MainHandler):
 
 # add new pages here
 app = webapp2.WSGIApplication([
-    ('/', FormHandler),
-    ('/dataview', DataViewHandler)
+    ('/', VoteHandler),
+    ('/dataview', DataViewHandler),
+    ('/vote', VoteHandler),
+    ('/queue', QueueHandler),
+    ('/thanks', ThanksHandler),
+    ('/next', NextHandler)
 ], debug=True)
-

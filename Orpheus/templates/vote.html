@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Orpheus - Vote for a song{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+    <h1>Vote for your favorite song!</h1>
+    <form class="mobile_form" action="/vote" method="post">
+        {% for song, votes in songs %}
+            <input type="radio" name="vote" value="{{song}}" />{{song}} - {{votes}}<br>
+        {% endfor %}
+        <br><br>
+        <div class="buttonHolder">
+            Suggestions?<br>
+            <input type="text" name="suggestion" /><br><br>
+            <input type="submit" value="Submit">
+        </div>
+    </form>
+{% endblock %}

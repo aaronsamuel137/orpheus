@@ -1,15 +1,32 @@
 body {
 	font-family: verdana;
 	background-color: #672199;
-	text-align: center;
-    font-size: 50px;
 }
 
 h1 {
 	color: white;
+    text-align: center;
 }
 
-form {
+#left, #right {
+    border: 1px solid #000;
+    text-align: left;
+    width: 45%;
+    margin: 0 auto;
+    padding: 2em;
+    background-color: #3f3f3f;
+    color: white;
+}
+
+#left {
+    float: left;
+}
+
+#right {
+    float: right;
+}
+
+.mobile_form {
 	background-color: #ccc;
 	margin: auto;
 	position: relative;
@@ -18,29 +35,67 @@ form {
 	border: 2px solid #000;
 	border: inset 1px solid #333;
     border-radius: 15px;
-    font-size: 75px;
+    font-size: 50px;
     color: black;
 }
 
-input[type=text] {
+.results {
+    margin: auto;
+    position: relative;
+    width: 88%;
+    font-size: 50px;
+    color: white;
+    width: 80%;
+    text-align: left;
+}
+
+.mobile_form input[type=text] {
     width: 90%;
-    height: 80px;
-    font-size: 70px;
+    height: 55px;
+    font-size: 50px;
     padding: 2px;
     border: 1px solid #000;
     border-radius: 15px;
 }
 
-input[type=submit] {
+.buttonHolder{ text-align: center; }
+
+.mobile_form input[type=submit] {
     width: 40%;
     height: 70px;
     font-size: 60px;
     padding: 2px;
     border: 1px solid #000;
     border-radius: 15px;
+    margin: auto 0;
+    text-align: center;
+}   
+
+.links {
+    float: right;
+    margin-right: 20px;
+    color: white;
+}
+
+a {
+    color: white;
 }
 
 .track {
+    color: white;
+    font-size: 60px;
+    font-family: "Arial Black", Gadget, sans-serif;
+    margin: auto;
+    position: relative;
+    width: 90%;
+    font-size: 75px;
+    color: white;
+    padding: 10px;
+    border-radius: 15px;
+    border: 2px solid white;
+}
+
+.vote {
     color: white;
     font-size: 60px;
 }
@@ -50,7 +105,6 @@ input[type=submit] {
     margin: auto;
     position: relative;
     width: 90%;
-    height: 100px;
     font-size: 75px;
     padding: 10px;
     border-radius: 15px;
